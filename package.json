@@ -34,6 +34,7 @@
     "eslint-plugin-lit": "^1.15.0",
     "globals": "^15.13.0",
     "husky": "^9.1.7",
+    "kakao.maps.d.ts": "^0.1.40",
     "lint-staged": "^15.2.10",
     "prettier": "3.4.1",
     "typescript": "~5.6.2",
