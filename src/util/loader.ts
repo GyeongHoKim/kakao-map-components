@@ -1,4 +1,4 @@
-import { SIGNATURE } from "@/util/constants.ts";
+import { SIGNATURE } from "@/util/constants";
 
 export type Libraries = ("services" | "clusterer" | "drawing")[];
 
