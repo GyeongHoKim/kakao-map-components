@@ -23,13 +23,14 @@ jobs:
         run: npm ci
 
       - name: Lint
-        run: npx eslint ./src/**/*.{js,ts}
+        run: npm run lint
 
       - name: Build
         run: npm run build
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
+        continue-on-error: true
         with:
           name: dist
           path: dist/
@@ -52,16 +53,21 @@ jobs:
         run: npm ci
 
       - name: Download build artifacts
+        id: download
         uses: actions/download-artifact@v4
+        continue-on-error: true
         with:
           name: dist
           path: dist/
+
+      - name: Build (only if artifact download failed)
+        if: steps.download.outcome == 'failure'
+        run: npm run build
 
       - name: Cypress run
         uses: cypress-io/github-action@v6
         with:
           browser: chrome
-          build: npm run build
           start: npm run serve
           wait-on: "http://localhost:8080"
         env:
