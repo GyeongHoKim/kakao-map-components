@@ -27,4 +27,4 @@ dist-ssr
 .eslintcache
 
 # local env
-cypress.env.json
+github-action.local.sh
