@@ -22,17 +22,20 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview",
-    "prepare": "husky"
+    "serve": "http-server . -p 8080",
+    "prepare": "husky",
+    "cy:open": "cypress open"
   },
   "dependencies": {
     "lit": "^3.2.1"
   },
   "devDependencies": {
+    "cypress": "^14.1.0",
     "eslint": "^9.16.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-lit": "^1.15.0",
     "globals": "^15.13.0",
+    "http-server": "^14.1.1",
     "husky": "^9.1.7",
     "kakao.maps.d.ts": "^0.1.40",
     "lint-staged": "^15.2.10",

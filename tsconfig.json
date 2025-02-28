@@ -6,7 +6,7 @@
     "module": "ESNext",
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "skipLibCheck": true,
-    "types": ["kakao.maps.d.ts"],
+    "types": ["kakao.maps.d.ts", "cypress", "node"],
 
     /* Bundler mode */
     "moduleResolution": "bundler",
@@ -24,7 +24,8 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
-    }
+    },
+    "outDir": "./dist"
   },
   "include": ["./src"]
 }
