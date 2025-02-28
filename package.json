@@ -13,10 +13,12 @@
   "files": [
     "dist"
   ],
-  "module": "dist/kakao-map-components.js",
+  "module": "dist/index.js",
+  "main": "dist/index.global.js",
   "exports": {
     ".": {
-      "import": "./dist/kakao-map-components.js"
+      "import": "./dist/index.js",
+      "browser": "./dist/index.global.js"
     }
   },
   "scripts": {
