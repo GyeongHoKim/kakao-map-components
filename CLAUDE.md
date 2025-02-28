@@ -1,15 +1,18 @@
 # CLAUDE.md for kakao-map-components
 
 ## Build Commands
+
 - `npm run dev` - Start development server
 - `npm run build` - Build the library
 - `npm run preview` - Preview the build
 
 ## Lint Commands
+
 - `npx eslint ./src/**/*.{js,ts} --fix` - Lint and fix code
 - `npx prettier --write ./src/**/*.{js,ts}` - Format code
 
 ## Code Style Guidelines
+
 - Use TypeScript with strict typing
 - Follow LitElement patterns for web components
 - Use decorators (@property, @state, @customElement) for component properties

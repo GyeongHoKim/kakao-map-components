@@ -25,7 +25,9 @@
     "build": "tsup",
     "serve": "http-server . -p 8080",
     "prepare": "husky",
-    "cy:open": "cypress open"
+    "cy:open": "cypress open",
+    "format": "prettier --write .",
+    "lint": "eslint ./src/**/*.ts"
   },
   "dependencies": {
     "lit": "^3.2.1"
