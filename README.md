@@ -22,7 +22,7 @@ Kakao 지도 API를 Web Component에 맞게 레핑한 라이브러리입니다.
 ```ts
 export class MyWebComponent extends HTMLElement {
   connectedCallback() {
-    this.shadowRoot = this.attachShadow({ mode: 'open' });
+    this.shadowRoot = this.attachShadow({ mode: "open" });
     this.shadowRoot.innerHTML = `<kakao-api-loader appkey="발급받은 APP KEY를 넣으시면 됩니다." />`;
   }
 }
@@ -77,7 +77,7 @@ export class MyWebComponent extends HTMLElement {
   }
 
   connectedCallback() {
-    this.shadowRoot = this.attachShadow({ mode: 'open' });
+    this.shadowRoot = this.attachShadow({ mode: "open" });
     this.shadowRoot.innerHTML = this.render();
   }
 }
@@ -100,9 +100,8 @@ export class MyWebComponent extends HTMLElement {
     `;
   }
 
-
   connectedCallback() {
-    this.shadowRoot = this.attachShadow({ mode: 'open' });
+    this.shadowRoot = this.attachShadow({ mode: "open" });
     this.shadowRoot.innerHTML = this.render();
   }
 }

@@ -6,14 +6,12 @@
     "module": "ESNext",
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "skipLibCheck": true,
-    "types": ["kakao.maps.d.ts"],
+    "types": ["kakao.maps.d.ts", "cypress", "node"],
 
     /* Bundler mode */
     "moduleResolution": "bundler",
-    "allowImportingTsExtensions": true,
     "isolatedModules": true,
     "moduleDetection": "force",
-    "noEmit": true,
 
     /* Linting */
     "strict": true,
@@ -25,8 +23,9 @@
     /* paths */
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
-    }
+      "@/*": ["./src/*"]
+    },
+    "outDir": "./dist"
   },
-  "include": ["src"]
+  "include": ["./src"]
 }
