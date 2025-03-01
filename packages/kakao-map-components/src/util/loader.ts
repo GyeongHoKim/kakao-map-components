@@ -51,7 +51,7 @@ export enum LoaderStatus {
 
 const DEFAULT_ID = `${SIGNATURE}_Loader`;
 
-export type LoaderErorr = Event | string;
+export type LoaderError = Event | string;
 
 /**
  * Kakao Map Api Loader
@@ -62,7 +62,7 @@ export type LoaderErorr = Event | string;
  */
 export class Loader {
   private static instance: Loader;
-  private static loadEventCallback = new Set<(e?: LoaderErorr) => void>();
+  private static loadEventCallback = new Set<(e?: LoaderError) => void>();
 
   public readonly id: string;
   public readonly appkey: string;
@@ -71,11 +71,11 @@ export class Loader {
   public readonly nonce: string | undefined;
   public readonly retries: number;
 
-  private callbacks: ((e?: LoaderErorr) => void)[] = [];
+  private callbacks: ((e?: LoaderError) => void)[] = [];
   private done = false;
   private loading = false;
-  private errors: LoaderErorr[] = [];
-  private onEvent: LoaderErorr | undefined;
+  private errors: LoaderError[] = [];
+  private onEvent: LoaderError | undefined;
 
   constructor({
     appkey,
@@ -128,7 +128,7 @@ export class Loader {
     };
   }
 
-  public static addLoadEventLisnter(callback: (err?: LoaderErorr) => void) {
+  public static addLoadEventLisnter(callback: (err?: LoaderError) => void) {
     if (window.kakao && window.kakao.maps) {
       window.kakao.maps.load(callback);
     }
@@ -136,13 +136,13 @@ export class Loader {
     return callback;
   }
 
-  public static removeLoadEventLisnter(callback: (err?: LoaderErorr) => void) {
+  public static removeLoadEventLisnter(callback: (err?: LoaderError) => void) {
     return Loader.loadEventCallback.delete(callback);
   }
 
   public load(): Promise<typeof kakao> {
     return new Promise((resolve, reject) => {
-      this.loadCallback((err?: LoaderErorr) => {
+      this.loadCallback((err?: LoaderError) => {
         if (!err) {
           resolve(window.kakao);
         } else {
@@ -169,7 +169,7 @@ export class Loader {
     return this.done && !this.loading && this.errors.length >= this.retries + 1;
   }
 
-  private loadCallback(fn: (e?: LoaderErorr) => void): void {
+  private loadCallback(fn: (e?: LoaderError) => void): void {
     this.callbacks.push(fn);
     this.execute();
   }
@@ -197,7 +197,7 @@ export class Loader {
       if (window.kakao && window.kakao.maps) {
         console.warn(
           "Kakao Maps이 이미 외부 요소에 의해 로딩되어 있습니다." +
-            "설정한 옵션과 일치 하지 않을 수 있으며, 이에 따른 예상치 동작이 발생할 수 있습니다."
+          "설정한 옵션과 일치 하지 않을 수 있으며, 이에 따른 예상치 동작이 발생할 수 있습니다."
         );
         window.kakao.maps.load(this.callback);
         return;
@@ -233,7 +233,7 @@ export class Loader {
     document.head.appendChild(script);
   }
 
-  private loadErrorCallback(event: LoaderErorr): void {
+  private loadErrorCallback(event: LoaderError): void {
     this.errors.push(event);
 
     if (this.errors.length <= this.retries) {
