@@ -1,4 +1,4 @@
-name: CI
+name: Tests
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
     branches: [ main, develop ]
 
 jobs:
-  lint-and-typecheck:
+  cypress-component-tests:
     runs-on: ubuntu-latest
     
     steps:
@@ -33,52 +33,75 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-lint-${{ hashFiles('**/pnpm-lock.yaml') }}
+          key: ${{ runner.os }}-pnpm-component-tests-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
-            ${{ runner.os }}-pnpm-lint-
-      
-      - name: Install dependencies
-        run: pnpm install
-      
-      - name: Run lint
-        run: pnpm lint
-      
-      - name: Check types
-        run: pnpm check-types
-  
-  build:
-    runs-on: ubuntu-latest
-    needs: lint-and-typecheck
-    
-    steps:
-      - uses: actions/checkout@v4
-      
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-      
-      - name: Install pnpm
-        uses: pnpm/action-setup@v3
-        with:
-          version: 9.0.0
-      
-      - name: Get pnpm store directory
-        id: pnpm-cache
-        shell: bash
-        run: |
-          echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
-      
-      - name: Setup pnpm cache
-        uses: actions/cache@v4
-        with:
-          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-build-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-build-
+            ${{ runner.os }}-pnpm-component-tests-
       
       - name: Install dependencies
         run: pnpm install
       
       - name: Build
         run: pnpm build
+      
+      - name: Run Cypress component tests
+        uses: cypress-io/github-action@v6
+        with:
+          working-directory: .
+          project: ./packages/kakao-map-components
+          component: true
+          browser: chrome
+          headed: false
+          cache-key: component-tests-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+        env:
+          KAKAO_MAP_API_KEY: ${{ secrets.KAKAO_MAP_API_KEY }}
+
+  cypress-e2e-tests:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9.0.0
+      
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+      
+      - name: Setup pnpm cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-e2e-tests-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-e2e-tests-
+      
+      - name: Install dependencies
+        run: pnpm install
+      
+      - name: Build
+        run: pnpm build
+      
+      - name: Run Cypress E2E tests
+        uses: cypress-io/github-action@v6
+        with:
+          working-directory: .
+          project: ./packages/kakao-map-components
+          config-file: cypress/cypress.config.ts
+          wait-on: 'http://localhost:8080'
+          wait-on-timeout: 30
+          browser: chrome
+          headed: false
+          start: pnpm --filter kakao-map-components serve
+          cache-key: e2e-tests-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+        env:
+          KAKAO_MAP_API_KEY: ${{ secrets.KAKAO_MAP_API_KEY }}
