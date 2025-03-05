@@ -1,0 +1,89 @@
+name: Cypress Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  cypress-component-tests:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9.0.0
+      
+      - name: Set up Cypress binary cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/Cypress
+          key: cypress-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+          
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build
+        run: pnpm build
+      
+      - name: Run Cypress component tests
+        uses: cypress-io/github-action@v6
+        with:
+          working-directory: ./packages/kakao-map-components
+          config-file: cypress/cypress.config.ts
+          component: true
+          browser: chrome
+          install: false
+        env:
+          KAKAO_MAP_API_KEY: ${{ secrets.KAKAO_MAP_API_KEY }}
+
+  cypress-e2e-tests:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Set up Cypress binary cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/Cypress
+          key: cypress-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+      
+      
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9.0.0
+
+      - name: Install dependencies
+        run: pnpm install
+      
+      - name: Build
+        run: pnpm build
+      
+      - name: Run Cypress E2E tests
+        uses: cypress-io/github-action@v6
+        with:
+          working-directory: ./packages/kakao-map-components
+          config-file: cypress/cypress.config.ts
+          wait-on: 'http://localhost:8080'
+          wait-on-timeout: 30
+          browser: chrome
+          start: pnpm run serve
+          install: false
+        env:
+          KAKAO_MAP_API_KEY: ${{ secrets.KAKAO_MAP_API_KEY }}
