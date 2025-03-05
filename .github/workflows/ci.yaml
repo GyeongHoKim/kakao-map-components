@@ -128,6 +128,7 @@ jobs:
           component: true
           browser: chrome
           headed: false
+          cache-key: pnpm-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
         env:
           KAKAO_MAP_API_KEY: ${{ secrets.KAKAO_MAP_API_KEY }}
 
@@ -168,12 +169,6 @@ jobs:
       - name: Build
         run: pnpm build
       
-      - name: Start server
-        run: pnpm --filter kakao-map-components serve &
-        env:
-          CI: true
-          KAKAO_MAP_API_KEY: ${{ secrets.KAKAO_MAP_API_KEY }}
-      
       - name: Run Cypress E2E tests
         uses: cypress-io/github-action@v6
         with:
@@ -184,5 +179,7 @@ jobs:
           wait-on-timeout: 30
           browser: chrome
           headed: false
+          start: pnpm --filter kakao-map-components serve
+          cache-key: pnpm-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
         env:
           KAKAO_MAP_API_KEY: ${{ secrets.KAKAO_MAP_API_KEY }}
