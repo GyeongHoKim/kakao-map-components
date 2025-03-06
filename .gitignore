@@ -25,3 +25,7 @@ dist-ssr
 
 # Cache
 .eslintcache
+.turbo
+
+# local env
+github-action.local.sh

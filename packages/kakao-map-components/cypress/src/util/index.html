@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Kakao Map Components</title>
+    <script type="module" src="/dist/index.js"></script>
+  </head>
+  <body>
+    <script type="module">
+      import { Loader } from '/dist/index.js';
+      const url = new URL(window.location.href);
+      const appkey = url.searchParams.get("appkey");
+
+      const loader = new Loader({ appkey });
+      loader.load({
+        appkey,
+      });
+    </script>
+  </body>
+</html>
