@@ -1,33 +1,50 @@
 {
-  "name": "repo",
-  "author": {
-    "name": "GyeongHoKim",
-    "email": "rlarudgh2017@gmail.com",
-    "url": "https://gyeongho.dev"
+  "author": "GyeongHoKim",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/GyeongHoKim/kakao-map-components.git"
   },
+  "issues": "https://github.com/GyeongHoKim/kakao-map-components/issues",
+  "name": "kakao-map-components",
   "private": false,
+  "version": "0.0.0",
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "module": "dist/kakao-map-components.js",
+  "exports": {
+    ".": {
+      "import": "./dist/kakao-map-components.js"
+    }
+  },
   "scripts": {
-    "build": "turbo run build",
-    "dev": "turbo run dev",
-    "lint": "turbo run lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "check-types": "turbo run check-types",
-    "test": "turbo run test",
-    "prepare": "is-ci || husky install"
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "prepare": "husky"
+  },
+  "dependencies": {
+    "lit": "^3.2.1"
   },
   "devDependencies": {
+    "eslint": "^9.16.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-lit": "^1.15.0",
+    "globals": "^15.13.0",
     "husky": "^9.1.7",
-    "is-ci": "^4.1.0",
-    "prettier": "^3.5.0",
-    "turbo": "^2.4.4",
-    "typescript": "5.7.3"
+    "lint-staged": "^15.2.10",
+    "prettier": "3.4.1",
+    "typescript": "~5.6.2",
+    "typescript-eslint": "^8.17.0",
+    "vite": "^6.0.1",
+    "vite-plugin-dts": "^4.3.0"
   },
-  "engines": {
-    "node": ">=18"
-  },
-  "packageManager": "pnpm@9.0.0",
   "lint-staged": {
-    "{packages,apps}*.{js,cjs,mjs,ts,cts,mts}": "eslint --cache --fix",
-    "*.{js,cjs,mjs,ts,json,html,css,md}": "prettier --write"
+    "./src/**/*.{js,ts}": [
+      "eslint --cache --fix",
+      "prettier --write"
+    ]
   }
 }
