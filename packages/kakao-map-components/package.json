@@ -11,9 +11,25 @@
     "directory": "packages/kakao-map-components"
   },
   "issues": "https://github.com/GyeongHoKim/kakao-map-components/issues",
+  "bugs": {
+    "url": "https://github.com/GyeongHoKim/kakao-map-components/issues",
+    "email": "rlarudgh2017@gmail.com"
+  },
   "name": "kakao-map-components",
+  "description": "Web Components for using kakao map api",
+  "keywords": [
+    "web-components",
+    "lit",
+    "kakao-maps",
+    "daum-map",
+    "daum-maps",
+    "kakaomap",
+    "kakao-maps",
+    "kakao-maps-sdk"
+  ],
+  "homepage": "https://github.com/GyeongHoKim/kakao-map-components#readme",
   "private": false,
-  "version": "0.0.0",
+  "version": "0.1.0",
   "type": "module",
   "files": [
     "dist"
@@ -23,8 +39,9 @@
   "exports": {
     ".": {
       "import": "./dist/index.js",
-      "browser": "./dist/index.iife.js"
-    }
+      "browser": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
   },
   "scripts": {
     "build": "tsc && vite build",

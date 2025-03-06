@@ -23,14 +23,20 @@ Kakao 지도 API를 Web Component에 맞게 레핑한 라이브러리입니다.
 export class MyWebComponent extends HTMLElement {
   connectedCallback() {
     this.shadowRoot = this.attachShadow({ mode: "open" });
-    this.shadowRoot.innerHTML = `<kakao-api-loader appkey="발급받은 APP KEY를 넣으시면 됩니다." />`;
+    this.shadowRoot.innerHTML = `<kakao-api-loader
+      appkey="발급받은 APP KEY를 넣으시면 됩니다."
+    >
+      <your-web-component>성공시에 표출됩니다</your-web-component>
+      <your-web-component slot="loading">로딩 중 표출됩니다</your-web-component>
+      <your-web-component slog="error">실패시 표출됩니다</your-web-component>
+    </kakao-api-loader>`;
   }
 }
 ```
 
 ## TypeScript
 
-타입스크립트 사용자를 위해 [kakao.maps.d.ts](https://github.com/JaeSeoKim/kakao.maps.d.ts) 패키지를 제공합니다.
+타입스크립트 사용자는 [kakao.maps.d.ts](https://github.com/JaeSeoKim/kakao.maps.d.ts) 패키지를 사용하시면 됩니다.
 
 `tsconfig.json`의 `compilerOptions.types` 속성에 `kakao.maps.d.ts` 패키지를 추가하시면 됩니다.
 
@@ -144,7 +150,7 @@ export class MyWebComponent extends HTMLElement {
 
 ## Working list
 
-- [ ] kakao-api-loader
+- [x] kakao-api-loader
 - [ ] kakao-map
   - [ ] kakao-map-marker
   - [ ] kakao-map-info-window
