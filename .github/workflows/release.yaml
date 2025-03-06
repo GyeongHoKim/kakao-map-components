@@ -68,9 +68,22 @@ jobs:
             echo "TAG=latest" >> $GITHUB_OUTPUT
           fi
       
-      - name: Update package version
+      - name: Verify package version matches tag
         working-directory: ./packages/kakao-map-components
-        run: npm version ${{ steps.get_version.outputs.VERSION }} --no-git-tag-version
+        run: |
+          PACKAGE_VERSION=$(node -p "require('./package.json').version")
+          TAG_VERSION="${{ steps.get_version.outputs.VERSION }}"
+          
+          echo "Package.json version: $PACKAGE_VERSION"
+          echo "Git tag version: $TAG_VERSION"
+          
+          if [ "$PACKAGE_VERSION" != "$TAG_VERSION" ]; then
+            echo "::error::Version mismatch! package.json ($PACKAGE_VERSION) does not match git tag ($TAG_VERSION)"
+            echo "Please ensure package.json version is updated before creating a new tag"
+            exit 1
+          fi
+          
+          echo "✅ Version check passed: $PACKAGE_VERSION"
       
       - name: Build
         run: pnpm --filter kakao-map-components build
