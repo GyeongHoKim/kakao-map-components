@@ -1,0 +1,133 @@
+name: Release to NPM
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          registry-url: 'https://registry.npmjs.org'
+      
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9.0.0
+      
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+      
+      - name: Setup pnpm cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-release-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-release-
+      
+      - name: Set up Cypress binary cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/Cypress
+          key: cypress-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+      
+      - name: Install dependencies
+        run: pnpm install
+      
+      - name: Extract version from tag
+        id: get_version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+        
+      - name: Determine npm tag
+        id: npm_tag
+        run: |
+          VERSION="${{ steps.get_version.outputs.VERSION }}"
+          if [[ "$VERSION" == *"-alpha"* ]]; then
+            echo "TAG=alpha" >> $GITHUB_OUTPUT
+          elif [[ "$VERSION" == *"-beta"* ]]; then
+            echo "TAG=beta" >> $GITHUB_OUTPUT
+          elif [[ "$VERSION" == *"-rc"* ]]; then
+            echo "TAG=rc" >> $GITHUB_OUTPUT
+          else
+            echo "TAG=latest" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Verify package version matches tag
+        working-directory: ./packages/kakao-map-components
+        run: |
+          PACKAGE_VERSION=$(node -p "require('./package.json').version")
+          TAG_VERSION="${{ steps.get_version.outputs.VERSION }}"
+          
+          echo "Package.json version: $PACKAGE_VERSION"
+          echo "Git tag version: $TAG_VERSION"
+          
+          if [ "$PACKAGE_VERSION" != "$TAG_VERSION" ]; then
+            echo "::error::Version mismatch! package.json ($PACKAGE_VERSION) does not match git tag ($TAG_VERSION)"
+            echo "Please ensure package.json version is updated before creating a new tag"
+            exit 1
+          fi
+          
+          echo "✅ Version check passed: $PACKAGE_VERSION"
+      
+      - name: Build
+        run: pnpm --filter kakao-map-components build
+      
+      - name: Run Cypress component tests
+        uses: cypress-io/github-action@v6
+        with:
+          working-directory: ./packages/kakao-map-components
+          config-file: cypress/cypress.config.cjs
+          component: true
+          browser: chrome
+          install: false
+        env:
+          KAKAO_MAP_API_KEY: ${{ secrets.KAKAO_MAP_API_KEY }}
+      
+      - name: Run Cypress E2E tests
+        uses: cypress-io/github-action@v6
+        with:
+          working-directory: ./packages/kakao-map-components
+          config-file: cypress/cypress.config.cjs
+          wait-on: 'http://localhost:8080'
+          wait-on-timeout: 30
+          browser: chrome
+          start: pnpm run serve
+          install: false
+        env:
+          KAKAO_MAP_API_KEY: ${{ secrets.KAKAO_MAP_API_KEY }}
+      
+      - name: Verify build artifacts
+        run: |
+          if [ ! -d "packages/kakao-map-components/dist" ]; then
+            echo "Build failed - dist directory not found"
+            exit 1
+          fi
+          echo "Build verified successfully"
+      
+      - name: Publish to npm
+        working-directory: ./packages/kakao-map-components
+        run: npm publish --access public --tag ${{ steps.npm_tag.outputs.TAG }}
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: Release ${{ steps.get_version.outputs.VERSION }}
+          generate_release_notes: true
