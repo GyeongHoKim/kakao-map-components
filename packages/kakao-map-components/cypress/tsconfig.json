@@ -2,11 +2,10 @@
   "extends": "@repo/typescript-config/base.json",
   "compilerOptions": {
     "types": ["kakao.maps.d.ts", "cypress"],
-    "baseUrl": "..",
+    "baseUrl": ".",
     "paths": {
       "@/*": ["../src/*"]
-    },
-    "outDir": "../dist"
+    }
   },
-  "include": ["../src", "."]
+  "include": ["../src", "./"]
 }
