@@ -39,7 +39,7 @@ jobs:
         uses: cypress-io/github-action@v6
         with:
           working-directory: ./packages/kakao-map-components
-          config-file: cypress/cypress.config.ts
+          config-file: cypress/cypress.config.cjs
           component: true
           browser: chrome
           install: false
@@ -79,7 +79,7 @@ jobs:
         uses: cypress-io/github-action@v6
         with:
           working-directory: ./packages/kakao-map-components
-          config-file: cypress/cypress.config.ts
+          config-file: cypress/cypress.config.cjs
           wait-on: 'http://localhost:8080'
           wait-on-timeout: 30
           browser: chrome
