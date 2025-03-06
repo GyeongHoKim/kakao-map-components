@@ -1,12 +1,9 @@
-import { defineConfig } from "cypress";
-import vitePreprocessor from "cypress-vite";
-import path from "path";
-import { fileURLToPath } from "url";
+const { defineConfig } = require("cypress");
+const vitePreprocessor = require("cypress-vite");
+const path = require("path");
+const viteConfig = require("./vite.config.cjs");
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-export default defineConfig({
+module.exports = defineConfig({
   experimentalCspAllowList: true,
   experimentalModifyObstructiveThirdPartyCode: false,
   env: {
@@ -25,8 +22,9 @@ export default defineConfig({
     specPattern: path.resolve(__dirname, "src/**/*.component.ts"),
     devServer: {
       bundler: "vite",
-      viteConfig: path.resolve(__dirname, "vite.config.ts"),
-    } as any,
+      framework: "lit",
+      viteConfig,
+    },
     indexHtmlFile: path.resolve(__dirname, "support/component-index.html"),
   },
   experimentalWebKitSupport: true,

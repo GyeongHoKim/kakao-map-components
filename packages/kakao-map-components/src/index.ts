@@ -1,1 +1,2 @@
-export { Loader } from "@/util/loader";
+export * from "@/components/api-loader/index";
+export * from "@/util/loader";
