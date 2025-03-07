@@ -52,6 +52,7 @@
     "lint": "eslint ./src/**/*.ts"
   },
   "dependencies": {
+    "@lit/context": "^1.1.4",
     "lit": "^3.2.1"
   },
   "devDependencies": {
