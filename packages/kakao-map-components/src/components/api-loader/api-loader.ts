@@ -80,12 +80,12 @@ export class KakaoApiLoader extends LitElement {
   }
 
   override render(): unknown {
-    if (!this.loading) {
-      return html`<slot></slot>`;
+    if (this.loading) {
+      return html`<slot name="loading"></slot>`;
     }
     if (this.error) {
       return html`<slot name="error"></slot>`;
     }
-    return html`<slot name="loading"></slot>`;
+    return html`<slot></slot>`;
   }
 }
