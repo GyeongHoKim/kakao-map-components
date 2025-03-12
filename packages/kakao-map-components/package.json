@@ -47,6 +47,10 @@
     "build": "tsc && vite build",
     "check-types": "tsc --noEmit",
     "serve": "http-server . -p 8080",
+    "test": "run-s test:component test:e2e",
+    "test:component": "cypress run --browser chrome --component --config-file cypress/cypress.config.cjs",
+    "test:e2e": "run-p serve test:e2e:cypress",
+    "test:e2e:cypress": "cypress run --browser chrome --e2e --config-file cypress/cypress.config.cjs",
     "cy:open": "cypress open --config-file cypress/cypress.config.cjs",
     "format": "prettier --write .",
     "lint": "eslint ./src/**/*.ts"
