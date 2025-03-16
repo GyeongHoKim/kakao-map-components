@@ -58,7 +58,24 @@ export class KakaoMap extends LitElement {
   @property({ type: Number })
   minLevel?: number;
 
-  @property({ type: String })
+  @property({
+    type: Number,
+    converter: {
+      fromAttribute: (value: string | null) => {
+        if (!value) {
+          return undefined;
+        }
+        const entry = Object.entries(kakao.maps.MapTypeId)
+          .find(([key, _]) => key === value);
+        return entry ? entry[1] : undefined;
+      },
+      toAttribute: (value: number) => {
+        const entry = Object.entries(kakao.maps.MapTypeId)
+          .find(([_, val]) => val === value);
+        return entry ? entry[0] : null;
+      }
+    },
+  })
   mapTypeId?: kakao.maps.MapTypeId;
 
   @property({ type: String })
