@@ -1,5 +1,5 @@
 import { Loader, LoaderOptions } from "@/util/loader";
-import { html, LitElement, PropertyValues } from "lit";
+import { LitElement, PropertyValues } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 
 declare global {
@@ -79,13 +79,7 @@ export class KakaoApiLoader extends LitElement {
     }
   }
 
-  override render(): unknown {
-    if (!this.loading) {
-      return html`<slot></slot>`;
-    }
-    if (this.error) {
-      return html`<slot name="error"></slot>`;
-    }
-    return html`<slot name="loading"></slot>`;
+  protected createRenderRoot(): HTMLElement | DocumentFragment {
+    return this;
   }
 }
