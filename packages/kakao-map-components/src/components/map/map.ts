@@ -1,4 +1,6 @@
 import { mapContext } from "@/context";
+import { KakaoMapAPIError, KakaoMapContainerError, KakaoMapError, KakaoMapErrorEventDetail, KakaoMapOptionsError } from "@/types/errors";
+import { isLatLng, isPoint } from "@/types/guards";
 import { SIGNATURE } from "@/util/constants";
 import { Loader } from "@/util/loader";
 import { provide } from "@lit/context";
@@ -24,6 +26,7 @@ import { customElement, property, state } from "lit/decorators.js";
  * @property {boolean} keyboardShortcuts - 키보드의 방향키와 +, – 키로 지도 이동,확대,축소 가능 여부 (기본값: false)
  * @property {number} padding - 중심 좌표를 지정한 좌표 또는 영역으로 부드럽게 이동할 때의 padding (기본값: 32)
  * 
+ * @fires kakao-map-error - 카카오맵 컴포넌트에서 발생하는 에러 이벤트
  * @fires map-created - map 생성 후 발생한다, 매개변수로 map 인스턴스를 전달한다.
  * @fires center-changed - 중심 좌표가 변경되면 발생한다.
  * @fires zoom-start - 확대 수준이 변경되기 직전 발생한다.
@@ -118,27 +121,51 @@ export class KakaoMap extends LitElement {
     return this;
   }
 
-  connectedCallback() {
-    super.connectedCallback();
-    this._container = document.createElement('div');
-    this._container.id = `${SIGNATURE}_Map_Container`;
-    this._container.style.width = '100%';
-    this._container.style.height = '100%';
-    this.appendChild(this._container);
+  /**
+   * 에러가 발생했을 때 호출되는 메서드입니다.
+   * 에러를 'kakao-map-error' 이벤트로 전파합니다.
+   */
+  private _handleError(error: KakaoMapError) {
+    const errorEvent = new CustomEvent<KakaoMapErrorEventDetail>('kakao-map-error', {
+      detail: {
+        error,
+        target: this
+      },
+      bubbles: true,
+      composed: true
+    });
+    this.dispatchEvent(errorEvent);
+  }
 
-    if (window.kakao && window.kakao.maps) {
-      this._initializeMap();
-    } else {
-      const apiLoader = this.closest('kakao-api-loader');
-      if (apiLoader) {
-        apiLoader.addEventListener('kakao-api-loaded', () => {
-          if (window.kakao && window.kakao.maps) {
-            this._initializeMap();
-          }
-        }, { once: true });
+  connectedCallback() {
+    try {
+      super.connectedCallback();
+      this._container = document.createElement('div');
+      this._container.id = `${SIGNATURE}_Map_Container`;
+      this._container.style.width = '100%';
+      this._container.style.height = '100%';
+      this.appendChild(this._container);
+
+      if (window.kakao && window.kakao.maps) {
+        this._initializeMap();
       } else {
-        throw new Error('Kakao Maps API is not loaded');
+        const apiLoader = this.closest('kakao-api-loader');
+        if (apiLoader) {
+          apiLoader.addEventListener('kakao-api-loaded', () => {
+            try {
+              if (window.kakao && window.kakao.maps) {
+                this._initializeMap();
+              }
+            } catch (error) {
+              this._handleError(error instanceof Error ? new KakaoMapError(error.message) : new KakaoMapError('Unknown error occurred'));
+            }
+          }, { once: true });
+        } else {
+          throw new KakaoMapAPIError();
+        }
       }
+    } catch (error) {
+      this._handleError(error instanceof KakaoMapError ? error : new KakaoMapError('Unknown error occurred'));
     }
   }
 
@@ -201,48 +228,52 @@ export class KakaoMap extends LitElement {
   }
 
   private _initializeMap() {
-    if (!this._container) {
-      throw new Error('Map container is not found');
+    try {
+      if (!this._container) {
+        throw new KakaoMapContainerError();
+      }
+
+      const initialCenter = this._getLatLngFromCenter();
+      if (!initialCenter) {
+        throw new KakaoMapOptionsError('Initial center coordinates are invalid or not provided');
+      }
+
+      const options: kakao.maps.MapOptions = {
+        center: initialCenter,
+        level: this.level,
+        mapTypeId: this.mapTypeId,
+        draggable: this.draggable,
+        scrollwheel: this.scrollwheel,
+        disableDoubleClick: this.disableDoubleClick,
+        disableDoubleClickZoom: this.disableDoubleClickZoom,
+        projectionId: this.projectionId,
+        tileAnimation: this.tileAnimation,
+        keyboardShortcuts: this.keyboardShortcuts
+      };
+
+      this._map = new kakao.maps.Map(this._container, options);
+
+      if (this.maxLevel !== undefined) this._map.setMaxLevel(this.maxLevel);
+      if (this.minLevel !== undefined) this._map.setMinLevel(this.minLevel);
+
+      this._setupEventListeners();
+
+      this.dispatchEvent(new CustomEvent('map-created', {
+        detail: { map: this._map },
+        bubbles: true,
+        composed: true
+      }));
+    } catch (error) {
+      this._handleError(error instanceof KakaoMapError ? error : new KakaoMapError('Failed to initialize map'));
     }
-
-    const initialCenter = this._getLatLngFromCenter();
-    if (!initialCenter) {
-      throw new Error('Initial center is not found');
-    }
-
-    const options: kakao.maps.MapOptions = {
-      center: initialCenter,
-      level: this.level,
-      mapTypeId: this.mapTypeId,
-      draggable: this.draggable,
-      scrollwheel: this.scrollwheel,
-      disableDoubleClick: this.disableDoubleClick,
-      disableDoubleClickZoom: this.disableDoubleClickZoom,
-      projectionId: this.projectionId,
-      tileAnimation: this.tileAnimation,
-      keyboardShortcuts: this.keyboardShortcuts
-    };
-
-    this._map = new kakao.maps.Map(this._container, options);
-
-    if (this.maxLevel !== undefined) this._map.setMaxLevel(this.maxLevel);
-    if (this.minLevel !== undefined) this._map.setMinLevel(this.minLevel);
-
-    this._setupEventListeners();
-
-    this.dispatchEvent(new CustomEvent('map-created', {
-      detail: { map: this._map },
-      bubbles: true,
-      composed: true
-    }));
   }
 
   private _getLatLngFromCenter(): kakao.maps.LatLng | null {
     if (!this.center) return null;
 
-    if ('lat' in this.center) {
+    if (isLatLng(this.center)) {
       return new kakao.maps.LatLng(this.center.lat, this.center.lng);
-    } else if ('x' in this.center) {
+    } else if (isPoint(this.center)) {
       return new kakao.maps.Coords(this.center.x, this.center.y).toLatLng();
     }
 
