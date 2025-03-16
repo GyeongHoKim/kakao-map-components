@@ -13,5 +13,18 @@ describe('kakao-api-loader', () => {
     cy.window().then((win) => {
       cy.wrap(win).should('have.property', 'kakao');
     });
-  })
-})
+  });
+
+  it('should not use shadow DOM', () => {
+    // arrange
+    const appkey = Cypress.env('appkey');
+    cy.mount<"kakao-api-loader">(html`
+      <kakao-api-loader appkey=${appkey}></kakao-api-loader>
+    `);
+
+    // assert
+    cy.get('kakao-api-loader')
+      .should('have.prop', 'shadowRoot')
+      .should('be.null');
+  });
+});
