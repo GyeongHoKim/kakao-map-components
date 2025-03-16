@@ -4,7 +4,7 @@ import { KakaoMap } from '@/components/map/map';
 import { html } from "lit";
 
 describe('kakao-map', () => {
-  it('should fires map-created event when map is created', () => {
+  it('should fire map-created event when map is created', () => {
     // arrange & act
     const mapCreated = cy.spy().as('created');
     const appkey = Cypress.env('appkey');
