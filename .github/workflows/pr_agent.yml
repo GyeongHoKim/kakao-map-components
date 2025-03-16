@@ -1,0 +1,27 @@
+name: PR AGENT
+
+on:
+  pull_request:
+    types: [opened, reopened, ready_for_review]
+  issue_comment:
+jobs:
+  pr_agent_job:
+    if: ${{ github.event.sender.type != 'Bot' }}
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: write
+      contents: write
+    name: Run pr agent on every pull request, respond to user comments
+    steps:
+      - name: PR Agent action step
+        id: pragent
+        uses: qodo-ai/pr-agent@main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          anthropic.KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          config.model: "anthropic/claude-3-7-sonnet-20250219"
+          config.fallback_models: "anthropic/claude-3-5-sonnet-20241022"
+          config.enable_claude_extended_thinking: true
+          config.extended_thinking_budget_tokens: 2048
+          config.extended_thinking_max_output_tokens: 4096
