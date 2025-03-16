@@ -1,6 +1,6 @@
 import { Loader, LoaderOptions } from "@/util/loader";
-import { html, LitElement, PropertyValues } from "lit";
-import { customElement, property, state } from "lit/decorators.js";
+import { LitElement, PropertyValues } from "lit";
+import { customElement, property } from "lit/decorators.js";
 
 declare global {
   interface HTMLElementTagNameMap {
@@ -33,10 +33,17 @@ export class KakaoApiLoader extends LitElement {
     appkey: "",
   };
 
-  @state()
+  @property({ type: Boolean, reflect: true })
   loading: boolean = true;
 
-  @state()
+  @property({
+    type: Object,
+    reflect: true,
+    converter: {
+      toAttribute: (value: ErrorEvent | undefined) => value ? '' : null,
+      fromAttribute: (value: string | null) => value !== null ? new ErrorEvent('error') : undefined
+    }
+  })
   error: ErrorEvent | undefined;
 
   override connectedCallback(): void {
@@ -79,13 +86,7 @@ export class KakaoApiLoader extends LitElement {
     }
   }
 
-  override render(): unknown {
-    if (!this.loading) {
-      return html`<slot></slot>`;
-    }
-    if (this.error) {
-      return html`<slot name="error"></slot>`;
-    }
-    return html`<slot name="loading"></slot>`;
+  protected createRenderRoot(): HTMLElement | DocumentFragment {
+    return this;
   }
 }
