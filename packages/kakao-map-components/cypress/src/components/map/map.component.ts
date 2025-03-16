@@ -23,7 +23,7 @@ describe('kakao-map', () => {
     cy.get('@created').should('be.called');
   });
 
-  it('should fires proper events when moving location', () => {
+  it('should fire proper events when moving location', () => {
     // arrange
     const mapCreated = cy.spy().as('created');
     const centerChanged = cy.spy().as('centerChanged');
@@ -57,7 +57,7 @@ describe('kakao-map', () => {
     cy.get('@idle').should('be.called');
   });
 
-  it('should fires proper events when zooming map', () => {
+  it('should fire proper events when zooming map', () => {
     // arrange
     const mapCreated = cy.spy().as('created');
     const zoomStart = cy.spy().as('zoomStart');
@@ -88,7 +88,7 @@ describe('kakao-map', () => {
     cy.get('@idle').should('be.called');
   });
 
-  it('should fires proper events when clicking map', () => {
+  it('should fire proper events when clicking map', () => {
     // arrange
     const mapCreated = cy.spy().as('created');
     const clickEvent = cy.spy().as('clickEvent');
