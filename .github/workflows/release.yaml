@@ -1,20 +1,25 @@
-name: Release to NPM
+name: Release
 
 on:
   push:
-    tags:
-      - 'v*'
+    branches:
+      - main
 
 permissions:
   contents: write
+  issues: write
+  pull-requests: write
   packages: write
 
 jobs:
-  publish:
+  release:
+    name: Release
     runs-on: ubuntu-latest
     
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -49,41 +54,6 @@ jobs:
       
       - name: Install dependencies
         run: pnpm install
-      
-      - name: Extract version from tag
-        id: get_version
-        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
-        
-      - name: Determine npm tag
-        id: npm_tag
-        run: |
-          VERSION="${{ steps.get_version.outputs.VERSION }}"
-          if [[ "$VERSION" == *"-alpha"* ]]; then
-            echo "TAG=alpha" >> $GITHUB_OUTPUT
-          elif [[ "$VERSION" == *"-beta"* ]]; then
-            echo "TAG=beta" >> $GITHUB_OUTPUT
-          elif [[ "$VERSION" == *"-rc"* ]]; then
-            echo "TAG=rc" >> $GITHUB_OUTPUT
-          else
-            echo "TAG=latest" >> $GITHUB_OUTPUT
-          fi
-      
-      - name: Verify package version matches tag
-        working-directory: ./packages/kakao-map-components
-        run: |
-          PACKAGE_VERSION=$(node -p "require('./package.json').version")
-          TAG_VERSION="${{ steps.get_version.outputs.VERSION }}"
-          
-          echo "Package.json version: $PACKAGE_VERSION"
-          echo "Git tag version: $TAG_VERSION"
-          
-          if [ "$PACKAGE_VERSION" != "$TAG_VERSION" ]; then
-            echo "::error::Version mismatch! package.json ($PACKAGE_VERSION) does not match git tag ($TAG_VERSION)"
-            echo "Please ensure package.json version is updated before creating a new tag"
-            exit 1
-          fi
-          
-          echo "✅ Version check passed: $PACKAGE_VERSION"
       
       - name: Build
         run: pnpm --filter kakao-map-components build
@@ -120,14 +90,9 @@ jobs:
           fi
           echo "Build verified successfully"
       
-      - name: Publish to npm
-        working-directory: ./packages/kakao-map-components
-        run: npm publish --access public --tag ${{ steps.npm_tag.outputs.TAG }}
+      - name: Release
         env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-      
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v1
-        with:
-          name: Release ${{ steps.get_version.outputs.VERSION }}
-          generate_release_notes: true
+        working-directory: ./packages/kakao-map-components
+        run: pnpm dlx semantic-release
